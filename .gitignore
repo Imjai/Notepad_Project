@@ -1,12 +1,843 @@
-*.class
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Scanner;
+import java.util.Set;
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+import javax.swing.event.*;
 
-# Package Files #
-*.jar
-*.war
-*.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+
+public class Notepad extends JFrame implements ActionListener,ItemListener,MenuListener,KeyListener
+{
+ 
+   private static final long serialVersionUID = 1L;
+   Container c=getContentPane();   
+   FileOutputStream fos;
+   FileInputStream fis;
+   JFileChooser dialog;
+   JOptionPane msgbox;
+   JLabel statusBar;  
+   JTabbedPane tabbedpane;
+   JTextPane textpane;
+   JViewport viewport;
+   boolean modified=false;
+   String str=" ";
+   JMenuBar menubar;
+   JMenu file,edit,help,view,font,style,size;
+   JMenuItem newfile,findreplae,delete,courier,sans,monospaced,symbol,regular,bold,italic,bolditalic,s,m,l,vl,savefile,saveas,openfile,exit,cut,copy,paste,about,selall,timedate;
+   JTextArea disp;
+   
+   JScrollPane scrlpane;
+   JColorChooser bcolorChooser=null;  
+   JColorChooser fcolorChooser=null;  
+   JDialog backgroundDialog=null;  
+   JDialog foregroundDialog=null;   
+   String str1=" ",str2=" ",str3=" ",str4=" ",str6=" ",str7=" ",str8=" ",str9=" ";
+   int len1,sel;
+   Font f;
+   GregorianCalendar  gcalendar;
+   String months[]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+
+   public Notepad()
+   {   
+	   
+	   setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+	   
+       disp=new JTextArea();
+       disp.setForeground(Color.RED);
+       disp.setCaretColor(getForeground());      
+       scrlpane=new JScrollPane(disp);
+       statusBar=new JLabel("       Ln 1, Col 1  ",JLabel.RIGHT); 
+       menubar=new JMenuBar();
+       dialog=new JFileChooser();
+       msgbox=new JOptionPane();
+       new JTabbedPane();
+       this.addWindowListener(new java.awt.event.WindowAdapter()
+    		   {
+       public void windowClosing(WindowEvent e)
+              {
+        	     exit.doClick();
+       	      }});
+       file=new JMenu("File");
+       file.setMnemonic('F');
+       
+       font=new JMenu("Font");
+       font.setMnemonic('D');
+       
+       style=new JMenu("Style");
+       style.setMnemonic('S');
+       
+       size=new JMenu("Size");
+       size.setMnemonic('Z');
+       
+       edit=new JMenu("Edit"); 
+       edit.setMnemonic('E');
+       
+       help=new JMenu("Help"); 
+       help.setMnemonic('H');
+       
+       view=new JMenu("View");
+       view.setMnemonic('V');
+       
+       regular=new JMenuItem("Regular");
+       regular.setMnemonic('G');
+       
+       findreplae=new JMenuItem("Find/Replace");
+       findreplae.setMnemonic('F');
+       
+       bold=new JMenuItem("Bold");
+       bold.setMnemonic('L');
+       
+       italic=new JMenuItem("Italic");
+       italic.setMnemonic('T');
+       
+       bolditalic=new JMenuItem("Bold_Italic");
+       bolditalic.setMnemonic('B');
+       
+       s=new JMenuItem("12");
+       s.setMnemonic('s');
+       
+       m=new JMenuItem("14");
+       m.setMnemonic('m');
+       
+       l=new JMenuItem("18");
+       l.setMnemonic('l');
+       
+       vl=new JMenuItem("20");
+       vl.setMnemonic('+');
+       
+       courier=new JMenuItem("Courier");
+       courier.setMnemonic('Q');
+       
+       sans=new JMenuItem("Sans Serif");
+       sans.setMnemonic('F');
+       
+       monospaced=new JMenuItem("MonoSpaced");
+       monospaced.setMnemonic('P');
+       
+       symbol=new JMenuItem("Symbol");
+       symbol.setMnemonic('Y');
+       
+       newfile=new JMenuItem("New");
+       newfile.setMnemonic('N');
+       
+       openfile=new JMenuItem("Open"); 
+       openfile.setMnemonic('O');
+       
+       savefile=new JMenuItem("Save");
+       savefile.setMnemonic('S');
+       
+       saveas=new JMenuItem("Save As");
+       saveas.setMnemonic('Z');
+       
+       exit=new JMenuItem("Exit");
+       exit.setMnemonic('x');
+       
+       cut=new JMenuItem("Cut");
+       cut.setMnemonic('C');
+       
+       copy=new JMenuItem("Copy"); 
+       copy.setMnemonic('o');
+       
+       paste=new JMenuItem("Paste");
+       paste.setMnemonic('P');
+       
+       selall=new JMenuItem("Select All");
+       selall.setMnemonic('A');
+       
+       delete=new JMenuItem("Delete");
+       delete.setMnemonic('D');
+       
+       
+       about=new JMenuItem("About Us");
+       about.setMnemonic('U');
+       
+       timedate=new JMenuItem("Time/Date");
+       timedate.setMnemonic('T');
+        
+       cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,InputEvent.CTRL_MASK,true));
+       copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,InputEvent.CTRL_MASK,true));
+       paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,InputEvent.CTRL_MASK,true));
+       openfile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,InputEvent.CTRL_MASK,true));
+       savefile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,InputEvent.CTRL_MASK,true));
+       saveas.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,InputEvent.CTRL_MASK,true));
+       newfile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,InputEvent.CTRL_MASK,true));
+       about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U,InputEvent.CTRL_MASK,true));
+       exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ALT,InputEvent.CTRL_MASK,true));
+       timedate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0,InputEvent.CTRL_MASK,true));
+       courier.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1,InputEvent.CTRL_MASK,true));
+       sans.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2,InputEvent.CTRL_MASK,true));
+       symbol.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3,InputEvent.CTRL_MASK,true));
+       monospaced.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4,InputEvent.CTRL_MASK,true));
+       bold.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5,InputEvent.CTRL_MASK,true));
+       italic.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6,InputEvent.CTRL_MASK,true));
+       bolditalic.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7,InputEvent.CTRL_MASK,true));
+       regular.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_8,InputEvent.CTRL_MASK,true));
+       s.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_9,InputEvent.CTRL_MASK,true));
+       m.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ASTERISK,InputEvent.CTRL_MASK,true));
+       l.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L,InputEvent.CTRL_MASK,true));
+       vl.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,InputEvent.CTRL_MASK,true));
+       findreplae.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,InputEvent.CTRL_MASK,true));
+       delete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,InputEvent.CTRL_MASK,true));
+       
+       file.add(newfile);
+       file.add(openfile);
+       file.add(savefile);
+       file.add(saveas);
+       file.addSeparator();
+       file.add(exit);
+       
+       edit.add(cut);
+       edit.add(copy);
+       edit.add(paste);
+       edit.addSeparator();
+       edit.add(selall);
+       edit.add(delete);
+       
+       view.add(timedate);
+       view.add(findreplae);
+       
+       font.add(symbol);
+       font.add(courier);
+       font.add(monospaced);
+       font.add(sans);
+       
+       style.add(bold);
+       style.add(italic);
+       style.add(bolditalic);
+       style.add(regular);
+       
+       size.add(s);
+       size.add(m);
+       size.add(l);
+       size.add(vl);
+
+       help.add(about);
+       
+       menubar.add(file);
+       menubar.add(edit);
+       menubar.add(view);
+       menubar.add(font);
+       menubar.add(style);
+       menubar.add(size);
+       menubar.add(help); 
+       
+      
+       getRootPane().setJMenuBar(menubar);
+       c.add(scrlpane);
+       c.add(statusBar,BorderLayout.SOUTH);
+       setSize(500,500);
+       setVisible(true);
+       setTitle("Notepad");
+       
+       savefile.addActionListener(this);
+       saveas.addActionListener(this);
+       openfile.addActionListener(this);
+       exit.addActionListener(this);
+       cut.addActionListener(this);
+       copy.addActionListener(this);
+       paste.addActionListener(this);
+       selall.addActionListener(this);
+       delete.addActionListener(this);
+       newfile.addActionListener(this);
+       about.addActionListener(this);
+       
+       courier.addActionListener(this);
+       sans.addActionListener(this);
+       regular.addActionListener(this);
+       bold.addActionListener(this);
+       italic.addActionListener(this);
+       bolditalic.addActionListener(this);
+       s.addActionListener(this);
+       m.addActionListener(this);
+       l.addActionListener(this);
+       vl.addActionListener(this);
+       monospaced.addActionListener(this); 
+       symbol.addActionListener(this);
+       timedate.addActionListener(this);
+       findreplae.addActionListener(this);
+       
+       edit.addMenuListener(this);
+       view.addMenuListener(this); 
+       font.addMenuListener(this);
+       style.addMenuListener(this);
+       size.addMenuListener(this);
+       
+       disp.addKeyListener(this);  
+       f=new Font("Times New Roman",Font.PLAIN,15);
+	   disp.setFont(f);
+	   
+	   exit.addActionListener(this);
+       disp.addCaretListener(new CaretListener()  
+    		   {  
+    		   public void caretUpdate(CaretEvent e)  
+    		    {  
+    		     int lineNumber=0, column=0, pos=0;   
+    		     try  
+    		   {  
+    		   pos=disp.getCaretPosition();  
+    		   lineNumber=disp.getLineOfOffset(pos);  
+    		   column=pos-disp.getLineStartOffset(lineNumber);  
+    		   }
+    		   catch(Exception excp){}  
+    		   if(disp.getText().length()==0)
+    		   {
+    			   lineNumber=0; column=0;
+    		   }  
+    		   statusBar.setText("Nb:   "+(pos)+"         Ln "+(lineNumber+1)+", Col "+(column+1));
+    		   }  
+    		   });  
+ 
+   }
+   
+   public void keyPressed(KeyEvent e)
+   {
+       //System.out.println("Press");
+   }
+   public void keyReleased(KeyEvent e)
+   {
+       //System.out.println("Release");
+   }
+   public void keyTyped(KeyEvent e)
+   {
+       String str=KeyEvent.getKeyModifiersText(InputEvent.CTRL_MASK);
+       if(!str.equals("Ctrl"))
+           modified=true;
+   }
+    public void menuSelected(MenuEvent ml)
+   {
+    	if(ml.getSource()==file)
+        {
+            if(disp.getSelectedText()==null)
+            {
+                savefile.setEnabled(false);
+                saveas.setEnabled(true);
+            }
+            else
+            {
+            	savefile.setEnabled(true);
+                saveas.setEnabled(true);
+            } 
+        }  
+    	
+    	if(ml.getSource()==view)
+        {
+            if(disp.getSelectedText()==null)
+            { 
+                timedate.setEnabled(true);
+            }
+            else
+            {
+            	
+            } 
+        }  
+       if(ml.getSource()==edit)
+       {
+           if(disp.getSelectedText()==null)
+           {
+               cut.setEnabled(false);
+               copy.setEnabled(false);
+               delete.setEnabled(false);
+           }
+           else
+           {
+               cut.setEnabled(true);
+               copy.setEnabled(true);
+               delete.setEnabled(true);
+           }
+       }
+       
+       if(ml.getSource()==style)
+       {
+           if(disp.getSelectedText()==null)
+           {
+               bold.setEnabled(false);
+               bolditalic.setEnabled(false);
+               italic.setEnabled(false);
+               regular.setEnabled(false);
+           }
+           else
+           {
+        	   bold.setEnabled(true);
+               bolditalic.setEnabled(true);
+               italic.setEnabled(true);
+               regular.setEnabled(true);
+           }
+       }
+       
+       if(ml.getSource()==font)
+       {
+           if(disp.getSelectedText()==null)
+           {
+               courier.setEnabled(false);
+               sans.setEnabled(false);
+               monospaced.setEnabled(false);
+               symbol.setEnabled(false);
+           }
+           else
+           {
+        	   courier.setEnabled(true);
+               sans.setEnabled(true);
+               monospaced.setEnabled(true);
+               symbol.setEnabled(true);
+           }
+       }
+       
+       if(ml.getSource()==size)
+       {
+           if(disp.getSelectedText()==null)
+           {
+               s.setEnabled(false);
+               m.setEnabled(false);
+               l.setEnabled(false);
+               vl.setEnabled(false);
+           }
+           else
+           {
+        	   s.setEnabled(true);
+               m.setEnabled(true);
+               l.setEnabled(true);
+               vl.setEnabled(true);
+           }
+       }
+       if(ml.getSource()==view)
+       {
+    	   if(disp.getSelectedText()==null)
+    	   {
+    		   findreplae.setEnabled(false);
+    	   }
+    	   else
+    	   {
+    		   findreplae.setEnabled(true);
+    	   }
+       }
+   }   
+   public void menuDeselected(MenuEvent ml)
+   {
+      
+   }
+   public void menuCanceled(MenuEvent ml)
+   {
+       
+   }
+   
+   public void actionPerformed(ActionEvent ae)
+   {
+       if(ae.getSource()==savefile)
+       {
+           if(getTitle().equals("Notepad"))
+               saveFile(0);
+           else if(modified)
+               saveFile(1);
+       }
+       
+       if(ae.getSource()==courier)
+       {
+
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font("Courier",fontStyle,fontSize);
+       disp.setFont(f);
+       }
+       
+       if(ae.getSource()==sans)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font("Sans Serif",fontStyle,fontSize);
+       disp.setFont(f);
+       }
+       
+       if(ae.getSource()==monospaced)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font("Monospaced",fontStyle,fontSize);
+       disp.setFont(f);
+       }
+
+       if(ae.getSource()==symbol)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font("Symbol",fontStyle,fontSize);
+       disp.setFont(f);
+       System.out.println(f.getFamily());
+       }
+       if(ae.getSource()==regular)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,Font.PLAIN,fontSize);
+       disp.setFont(f);
+       }
+       if(ae.getSource()==bold)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,Font.BOLD,fontSize);
+       disp.setFont(f);
+       }
+       if(ae.getSource()==italic)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,Font.ITALIC,fontSize);
+       disp.setFont(f);
+       }
+       if(ae.getSource()==bolditalic)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,Font.BOLD|Font.ITALIC,fontSize);
+       disp.setFont(f);
+       }
+
+       if(ae.getSource()==s)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,fontStyle,12);
+       disp.setFont(f);
+       }
+
+       if(ae.getSource()==m)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,fontStyle,14);
+       disp.setFont(f);
+       }
+       if(ae.getSource()==l)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,fontStyle,18);
+       disp.setFont(f);
+       }
+       if(ae.getSource()==vl)
+       {
+       String fontName=f.getName();
+       String fontFamily=f.getFamily();
+       int fontSize=f.getSize();
+       int fontStyle=f.getStyle();
+
+       f=new Font(fontName,fontStyle,20);
+       disp.setFont(f);
+       }
+     
+       try
+       {
+       if(ae.getSource()==saveas)
+       {
+       FileDialog dialog1=new FileDialog(this,"Save As",FileDialog.SAVE);
+       dialog1.setVisible(true);
+
+       str7=dialog1.getDirectory();
+       str8=dialog1.getFile();
+       str9=str7+str8;
+
+
+       str6=disp.getText();
+       len1=str6.length();
+       byte buf[]=str6.getBytes();
+
+       File f1=new File(str9);
+       FileOutputStream fobj1=new FileOutputStream(f1);
+       for(int k=0;k<len1;k++)
+       {
+        fobj1.write(buf[k]);
+       }
+        fobj1.close();
+       }
+       this.setTitle(str8);
+       }
+       catch(IOException e)
+       {
+    	   e.printStackTrace();
+       }
+       
+       if (ae.getSource() == this.openfile) 
+       {
+			JFileChooser open = new JFileChooser(); 
+			int option = open.showOpenDialog(this); 
+			
+			if (option == JFileChooser.APPROVE_OPTION) 
+			{
+				this.disp.setText(""); 
+				try 
+				{
+					
+					Scanner sc;
+					sc = new Scanner (new FileReader(open.getSelectedFile().getPath()));
+					while (sc.hasNext()) 
+				    this.disp.append(sc.nextLine() + "\n");
+				}  
+				catch (Exception ex)
+				{ 
+					System.out.println(ex.getMessage());
+				}
+			}
+		}
+       else if(ae.getSource()==exit)
+       {
+    	   int answer = JOptionPane.showConfirmDialog(this, "Wanna Leave?",
+    	            "Confirm Dialog", JOptionPane.YES_NO_OPTION);
+    	      switch (answer)
+    	      {
+    	         case JOptionPane.YES_OPTION:
+    	        	 System.exit(answer);
+    	            break;
+    	         case JOptionPane.NO_OPTION:
+    	            break;
+    	      }     
+       }
+       else if(ae.getSource()==newfile)
+       {
+    	   
+    	  Notepad note1 = new Notepad();
+          note1.setSize(500,500);
+           note1.setVisible(true);
+           tabbedpane.addTab("New Tab",disp);
+           int x;
+           if(modified)
+           {
+               x=isModified();
+               if(x==1)
+               {
+                   if(getTitle().equals("Notepad"))
+                       saveFile(0);
+                   else
+                       saveFile(1);
+               }
+               else if(x!=3)
+               {
+                   disp.setText("");
+                   setTitle("Notepad");
+                   modified=false;
+               }
+           }
+           else{
+               disp.setText("");
+               setTitle("Notepad");
+               modified=false;
+           }
+       }
+       else if(ae.getSource()==cut)
+       {
+    	   disp.cut();
+       }
+       else if(ae.getSource()==copy)
+       {
+    	   disp.copy();
+       }
+       else if(ae.getSource()==paste)
+       {
+           disp.paste();
+       }
+       else if(ae.getSource()==selall)
+       {
+           disp.selectAll();
+       }
+       
+       else if(ae.getSource()==delete)
+       {
+    	   disp.replaceRange("", disp.getSelectionStart(), disp.getSelectionEnd());
+       }
+       
+       try
+       {   
+       if(ae.getSource()==timedate)
+       {
+       gcalendar=new GregorianCalendar();
+       String h=String.valueOf(gcalendar.get(Calendar.HOUR));
+       String m=String.valueOf(gcalendar.get(Calendar.MINUTE));
+       String s=String.valueOf(gcalendar.get(Calendar.SECOND));
+       String date=String.valueOf(gcalendar.get(Calendar.DATE));
+       String mon=months[gcalendar.get(Calendar.MONTH)];
+       String year=String.valueOf(gcalendar.get(Calendar.YEAR));
+       String hms="Time"+" - "+h+":"+m+":"+s+"      Date"+"  -  "+date+"  "+mon+" "+year;
+       int loc=disp.getCaretPosition();
+       disp.insert(hms,loc);
+       }
+       }
+       catch (Exception e)
+       {
+    	   
+       }
+       if(ae.getSource()==about)
+       {
+    	   JOptionPane.showMessageDialog(this, "Devloped By JJ!",
+    	            "About Us!", JOptionPane.PLAIN_MESSAGE);
+       }
+       if(ae.getSource()==findreplae)
+       {
+    	   String Str = JOptionPane.showInputDialog(this,"Enter the Word to Find/Replace ");  
+    	   if(ae.getSource()!=null)
+    	   {
+    	   if(disp.getSelectedText().length()!=0)
+    	   {
+    	   JLabel replaceText= new JLabel();
+		   String r = replaceText.getText();
+    	   disp.replaceSelection(r);
+    	   }
+    	   }
+       }
+   }
+   public void saveFile(int saveflag)
+   {
+       File f;
+       try
+       {
+           if(saveflag==0)
+           {
+               int x=dialog.showSaveDialog(this);
+               if(x==0)
+               {
+                   f=dialog.getSelectedFile();
+                   fos=new FileOutputStream(f);
+                   setTitle(f.getPath());
+                   PrintStream ps=new PrintStream(fos);
+                   ps.print(disp.getText());
+                   modified=false;
+               }
+           }
+           else
+           {
+               f=new File(getTitle());
+               fos=new FileOutputStream(f);
+               setTitle(f.getPath());
+               PrintStream ps=new PrintStream(fos);
+               ps.print(disp.getText());
+               modified=true;
+           }
+       }catch(Exception e)
+       {
+    	   
+       }
+   }
+   public void openFile()
+   {
+       int x=dialog.showOpenDialog(this);
+       if(x==0)
+       {
+       try
+       {
+           File f=dialog.getSelectedFile();
+           fis=new FileInputStream(f);
+           setTitle(f.getPath());
+           disp.setText("");
+           BufferedReader br=new BufferedReader(new InputStreamReader(fis));
+           while((str=br.readLine())!=null)
+           disp.append(str+"\n");
+           disp.replaceRange("",disp.getText().length()-1,disp.getText().length());
+           modified=false;
+       }catch(Exception e){}
+       }
+   }
+    public int isModified()
+   {
+       int x=JOptionPane.showConfirmDialog(this,"The text in the "+getTitle()+" has changed\nDo you want to save it ?", "Notepad", JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+       if(x==JOptionPane.YES_OPTION)
+       { 
+    	    System.exit(0);
+            return 1;
+       }    
+       else if(x==JOptionPane.NO_OPTION) 
+    	   {
+    	   System.exit(DO_NOTHING_ON_CLOSE);
+    	   return 2;
+    	   }
+       
+       else return 3;
+   }
+   public void itemStateChanged(ItemEvent ie)
+   {
+	   
+   }
+   
+   void showBackgroundColorDialog()  
+   {  
+   if(bcolorChooser==null)  
+       bcolorChooser=new JColorChooser(Color.GRAY);  
+   if(backgroundDialog==null)  
+       backgroundDialog=JColorChooser.createDialog  
+           (Notepad.this.disp,str,false,bcolorChooser,new ActionListener()  
+           {public void actionPerformed(ActionEvent evvv)
+           {  
+               Notepad.this.disp.setBackground(bcolorChooser.getColor());}},  
+           null);        
+     
+   backgroundDialog.setVisible(true);  
+   }    
+   void showForegroundColorDialog()  
+   {  
+   if(fcolorChooser==null)  
+       fcolorChooser=new JColorChooser(Color.GREEN);  
+   if(foregroundDialog==null)  
+       foregroundDialog=JColorChooser.createDialog  
+           (Notepad.this.disp,str,false,fcolorChooser,new ActionListener()  
+           {public void actionPerformed(ActionEvent evvv){  
+               Notepad.this.disp.setForeground(fcolorChooser.getColor());}},  
+           null);        
+     
+   foregroundDialog.setVisible(true);  
+   }  
+   public static void main(String[] args)
+   {
+	   try {
+		SwingUtilities.invokeAndWait(new Runnable()
+		   {
+		         public void run()
+		         { 
+		            new Notepad(); 
+		         }
+		      });
+	} catch (InvocationTargetException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+   }
+   
+}
